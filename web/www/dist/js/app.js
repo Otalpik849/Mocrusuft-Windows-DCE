@@ -23,6 +23,7 @@ var allowCrossColors = false;
 var warnedUserAboutUGC = false;
 var dontUseMyLocation = false;
 var espeaktts = false;
+var voiceChatEnabled = false;
 
 
 
@@ -182,6 +183,7 @@ var Bonzi = (function () {
                 (this.color = this.userPublic.color),
 				
 				(this.auCtx = new(window.AudioContext || window.webkitAudioContext)({ latencyHint: "interactive", sampleRate: 44100 }) || window.AudioContext || window.webkitAudioContext);
+                (this.voiceChat = false);
                 (this.source),
                 (this.gainNode),
                 (this.freqData),
@@ -2544,7 +2546,7 @@ function linkify(text) {
             return (
                 (this.framerate = 1 / 15),
                 (this.spriteSheets = {}),
-				(this.sprites = ["black","grey","white","ghost","blue","boney","cyan","brown","green","lime","magenta","purple","red","orange","yellow","pink","pope","allifek","andrew","andrewgod","andrewpope","announcer","apple","baseball","blocky","book","bow","bubble","clippy","coiny","courtney","daffy","djordje","doctormike","earl","eraser","f1","firey","flower","fuckune","gelatin","genie","genius","golfball","granddad","granddadpope","homer","homestar","icecube","kairu","klasky1","knife","konnor88","leafy","lightbulb","links","luigi","mamachan","mario","marshmallow","match","matt","max","maxmac","mephone4","mephone4s","mem","merlin","needle","nickel","ofek","officelogo","oj","paintbrush","paper","peach","peedy","pen","pencil","pepper","pickle","pin","pm","pm_red","qmark","robby","roblox_noob","rosalina","ruby","salt","seamus","snowball","sonicfan08","spongy","steve","suitcase","taco","tennisball","test_tube","timothy","tivo","toad","toadette","unbojih","unbojihface","unbojihhackerman","victor","vvx","white","yellow"]),
+				(this.sprites = ["black","grey","white","ghost","blue","boney","cyan","brown","green","lime","magenta","purple","red","orange","yellow","pink","pope","allifek","andrew","andrewgod","andrewpope","announcer","apple","baseball","blocky","book","bow","bubble","clippy","coiny","courtney","daffy","djordje","doctormike","earl","eraser","f1","firey","flower","fuckune","gelatin","genie","genius","golfball","granddad","granddadpope","homer","homestar","icecube","kairu","klasky1","knife","konnor88","leafy","lightbulb","links","luigi","mamachan","mario","marshmallow","match","matt","max","maxmac","mephone4","mephone4s","mem","merlin","needle","nickel","ofek","officelogo","oj","paintbrush","paper","peach","peedy","pen","pencil","pepper","pickle","pin","pm","pm_red","qmark","robby","roblox_noob","roblox_noob_festivalv","rosalina","ruby","salt","seamus","snowball","sonicfan08","spongy","steve","suitcase","taco","tennisball","test_tube","timothy","tivo","toad","toadette","unbojih","unbojihface","unbojihhackerman","victor","vvx","white","yellow"]),
                 (this.prepSprites = function () {
 					for (var spriteColors = this.sprites, i = 0; i < spriteColors.length; i++) {
 						var color = spriteColors[i],
@@ -2896,19 +2898,26 @@ function bzSetup() {
         }),
 		
         socket.on('audioStream', (data) => {
-		var newData = data.audio.split(";");
-		newData[0] = "data:audio/ogg;";
-		newData = newData[0] + newData[1];
-	
-		var audio = new Audio(newData);
-		if (!audio || document.hidden) {
-			return;
-		}
-		audio.play();
-	
-		const indicator = document.getElementById(`mic-${data.id}`);
-		if (indicator) {
-		  indicator.className = `mic-indicator active`;
+		var b = agents[data.guid];
+		if (b.voiceChat == false) {
+			var newData = data.audio.split(";");
+			newData[0] = "data:audio/ogg;";
+			newData = newData[0] + newData[1];
+		
+			var audio = new Audio(newData);
+			if (!audio || document.hidden) {
+				return;
+			}
+			audio.play();
+		
+			const indicator = document.getElementById(`mic-${data.id}`);
+			if (indicator) {
+			  indicator.className = `mic-indicator active`;
+			}
+			b.voiceChat = true
+			audio.onended = function() {
+				b.voiceChat = false
+			}
 		}
 	});
         socket.on("replaceTVWithURL", function(a) {
