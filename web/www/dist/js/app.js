@@ -2892,11 +2892,7 @@ function bzSetup() {
 			});
 		}
 	})
-        $("#chat_send").click(sendInput),
-        $("#chat_message").keypress(function (e) {
-            13 == e.which && sendInput();
-        }),
-		
+
         socket.on('audioStream', (data) => {
 		var b = agents[data.guid];
 		if (b.voiceChat == false) {
@@ -2920,6 +2916,11 @@ function bzSetup() {
 			}
 		}
 	});
+        $("#chat_send").click(sendInput),
+        $("#chat_message").keypress(function (e) {
+            13 == e.which && sendInput();
+        }),
+		
         socket.on("replaceTVWithURL", function(a) {
 
             $("#bonzi_tv").html("<div id='bonzi_tv_player' style='position: absolute; overflow: hidden; width: 100%; height: 100%; pointer-events: none;'></div>")
